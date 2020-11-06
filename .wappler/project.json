@@ -30,5 +30,6 @@
   "routingHandler": "node",
   "useRouting": true,
   "addBase": true,
-  "designFramework": "bootstrap4"
+  "designFramework": "bootstrap4",
+  "styleFile": "css/styles.css"
 }

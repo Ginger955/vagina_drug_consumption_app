@@ -10,11 +10,11 @@
   },
   "schema": {
     "tables": {
-      "cars": {
+      "entries": {
         "db": {
           "engine": "InnoDB",
           "schema": "vagina_drug",
-          "collation": "utf8_general_ci",
+          "collation": "utf8mb4_unicode_ci",
           "comment": ""
         },
         "columns": {
@@ -26,40 +26,37 @@
               "nullable": false
             }
           },
-          "make": {
+          "consumed_by": {
             "db": {
-              "type": "string",
-              "maxLength": 50,
+              "type": "reference",
               "primary": false,
               "comment": "",
-              "nullable": true
+              "nullable": true,
+              "references": "id",
+              "inTable": "users",
+              "onUpdate": "NO ACTION",
+              "onDelete": "NO ACTION"
             }
           },
-          "model": {
+          "drug_type": {
             "db": {
-              "type": "string",
-              "maxLength": 50,
+              "type": "reference",
               "primary": false,
               "comment": "",
-              "nullable": true
-            }
-          },
-          "year": {
-            "db": {
-              "type": "string",
-              "maxLength": 50,
-              "primary": false,
-              "comment": "",
-              "nullable": true
+              "nullable": true,
+              "references": "id",
+              "inTable": "drug_types",
+              "onUpdate": "NO ACTION",
+              "onDelete": "NO ACTION"
             }
           }
         }
       },
-      "countries": {
+      "drug_types": {
         "db": {
           "engine": "InnoDB",
           "schema": "vagina_drug",
-          "collation": "utf8_general_ci",
+          "collation": "utf8mb4_unicode_ci",
           "comment": ""
         },
         "columns": {
@@ -71,83 +68,10 @@
               "nullable": false
             }
           },
-          "country_code": {
+          "name": {
             "db": {
               "type": "string",
-              "default": "",
-              "maxLength": 2,
-              "primary": false,
-              "comment": "",
-              "nullable": false
-            }
-          },
-          "country_name": {
-            "db": {
-              "type": "string",
-              "default": "",
-              "maxLength": 100,
-              "primary": false,
-              "comment": "",
-              "nullable": false
-            }
-          }
-        }
-      },
-      "images": {
-        "db": {
-          "engine": "InnoDB",
-          "schema": "vagina_drug",
-          "collation": "utf8_general_ci",
-          "comment": ""
-        },
-        "columns": {
-          "id": {
-            "db": {
-              "type": "increments",
-              "primary": true,
-              "comment": "",
-              "nullable": false
-            }
-          },
-          "image": {
-            "db": {
-              "type": "string",
-              "maxLength": 50,
-              "primary": false,
-              "comment": "",
-              "nullable": true
-            }
-          },
-          "description": {
-            "db": {
-              "type": "text",
-              "maxLength": 65535,
-              "primary": false,
-              "comment": "",
-              "nullable": true
-            }
-          },
-          "category": {
-            "db": {
-              "type": "string",
-              "maxLength": 12,
-              "primary": false,
-              "comment": "",
-              "nullable": true
-            }
-          },
-          "author": {
-            "db": {
-              "type": "string",
-              "maxLength": 50,
-              "primary": false,
-              "comment": "",
-              "nullable": true
-            }
-          },
-          "date": {
-            "db": {
-              "type": "date",
+              "maxLength": 255,
               "primary": false,
               "comment": "",
               "nullable": true
@@ -220,6 +144,15 @@
             "db": {
               "type": "string",
               "maxLength": 100,
+              "primary": false,
+              "comment": "",
+              "nullable": true
+            }
+          },
+          "password": {
+            "db": {
+              "type": "string",
+              "maxLength": 255,
               "primary": false,
               "comment": "",
               "nullable": true
