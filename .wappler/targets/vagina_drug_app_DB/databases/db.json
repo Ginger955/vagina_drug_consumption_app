@@ -1,0 +1,11 @@
+{
+  "direct": true,
+  "type": "postgres",
+  "connection": {
+    "host": "localhost",
+    "port": 9906,
+    "user": "db_user",
+    "password": "TyNtGt4h",
+    "database": "vagina_drug_app"
+  }
+}

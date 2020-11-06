@@ -1,0 +1,30 @@
+version: '3'
+services:
+  db:
+    image: 'postgres:11.1'
+    environment:
+      POSTGRES_PASSWORD: TyNtGt4h
+      POSTGRES_USER: db_user
+      POSTGRES_DB: vagina_drug_app
+    volumes:
+      - './db_init:/docker-entrypoint-initdb.d'
+    ports:
+      - '9906:5432'
+    restart: always
+  web:
+    depends_on:
+      - db
+    volumes:
+      - '../../../app:/opt/node_app/app'
+      - '../../../lib:/opt/node_app/lib'
+      - '../../../views:/opt/node_app/views'
+      - '../../../public:/opt/node_app/public'
+      - '../../../extensions:/opt/node_app/extensions'
+    ports:
+      - '8000:3000'
+    restart: always
+    stdin_open: true
+    tty: true
+    build:
+      context: ../../../
+      dockerfile: .wappler/targets/vagina_drug_app_DB/web/Dockerfile
