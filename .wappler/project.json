@@ -1,51 +1,32 @@
 {
   "hostingType": "docker",
   "projectServerModel": "node",
-  "projectName": "vagina_drug_app",
+  "projectName": "vagina_drug",
   "gitURL": "https://github.com/Ginger955/vagina_drug_consumption_app.git",
   "projectType": "web",
   "npmInstall": true,
   "targets": [
     {
-      "webServerPort": 8000,
+      "webServerPort": 8100,
       "webServerLang": "node",
-      "databaseType": "postgres",
+      "databaseType": "mysql",
       "databasePort": 9906,
-      "postgresVersion": "11.1.x",
-      "postgres_rootName": "db_user",
-      "postgres_rootPassword": "TyNtGt4h",
-      "postgres_databaseName": "vagina_drug_app",
+      "mySQLVersion": "8.0.x",
+      "mySQL_rootPassword": "eDz5J4ud",
+      "mySQL_databaseName": "vagina_drug",
+      "mySQL_username": "db_user",
+      "mySQL_password": "fuiN5Xtt",
       "targetType": "docker",
       "webServer": "node",
       "NodeVersion": "12",
-      "remoteURL": "http://localhost:8000",
-      "name": "vagina_drug_app_DB",
-      "dockerBuild": true
+      "remoteURL": "http://localhost:8100",
+      "name": "Dev"
     }
   ],
-  "frameworks": [
-    {
-      "name": "appConnect",
-      "type": "local"
-    },
-    {
-      "name": "cordova",
-      "type": "local"
-    },
-    {
-      "name": "jquery_slim_34",
-      "type": "cdn"
-    },
-    {
-      "name": "fontawesome_4",
-      "type": "cdn"
-    },
-    {
-      "name": "bootstrap4",
-      "type": "cdn"
-    }
-  ],
-  "activeTarget": "vagina_drug_app_DB",
+  "frameworks": [],
+  "activeTarget": "Dev",
+  "webRootFolder": "/public",
+  "assetsFolder": "/assets",
   "routingHandler": "node",
   "useRouting": true,
   "addBase": true,
