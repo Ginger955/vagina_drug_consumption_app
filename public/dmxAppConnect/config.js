@@ -78,6 +78,80 @@ dmx.config({
         }
       ],
       "outputType": "array"
+    },
+    "some": {
+      "meta": [
+        {
+          "name": "id",
+          "type": "text"
+        },
+        {
+          "name": "first_name",
+          "type": "text"
+        },
+        {
+          "name": "last_name",
+          "type": "text"
+        },
+        {
+          "name": "gender",
+          "type": "text"
+        },
+        {
+          "name": "email",
+          "type": "text"
+        },
+        {
+          "name": "company",
+          "type": "text"
+        },
+        {
+          "name": "avatar",
+          "type": "text"
+        },
+        {
+          "name": "password",
+          "type": "text"
+        }
+      ],
+      "outputType": "array"
+    },
+    "k": {
+      "meta": [
+        {
+          "name": "$index",
+          "type": "number"
+        },
+        {
+          "name": "$key",
+          "type": "text"
+        },
+        {
+          "name": "$value",
+          "type": "object"
+        },
+        {
+          "name": "date",
+          "type": "text"
+        },
+        {
+          "name": "drugs",
+          "type": "text"
+        },
+        {
+          "name": "first_name",
+          "type": "text"
+        },
+        {
+          "name": "last_name",
+          "type": "text"
+        },
+        {
+          "name": "avatar",
+          "type": "text"
+        }
+      ],
+      "outputType": "array"
     }
   }
 });

@@ -31,7 +31,7 @@
               "type": "date",
               "primary": false,
               "comment": "",
-              "nullable": true
+              "nullable": false
             }
           },
           "drugs": {

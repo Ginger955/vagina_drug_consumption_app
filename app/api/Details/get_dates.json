@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "$_GET": [
+      {
+        "type": "text",
+        "name": "sort"
+      },
+      {
+        "type": "text",
+        "name": "dir"
+      }
+    ]
+  },
+  "exec": {
+    "steps": [
+      "connections/db",
+      {
+        "name": "query",
+        "module": "dbconnector",
+        "action": "select",
+        "options": {
+          "connection": "db",
+          "sql": {
+            "type": "SELECT",
+            "columns": [
+              {
+                "table": "entries",
+                "column": "date"
+              }
+            ],
+            "table": {
+              "name": "entries"
+            },
+            "joins": [],
+            "orders": [
+              {
+                "table": "entries",
+                "column": "date",
+                "direction": "ASC"
+              }
+            ],
+            "query": "SELECT date\nFROM entries\nORDER BY date ASC",
+            "params": []
+          }
+        },
+        "output": true,
+        "meta": [
+          {
+            "name": "date",
+            "type": "text"
+          }
+        ],
+        "outputType": "array"
+      }
+    ]
+  }
+}

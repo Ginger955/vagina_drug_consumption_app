@@ -26,16 +26,25 @@
     <link rel="stylesheet" href="dmxAppConnect/dmxNotifications/dmxNotifications.css" />
     <script src="dmxAppConnect/dmxNotifications/dmxNotifications.js" defer=""></script>
     <script src="dmxAppConnect/dmxBootstrap4Alert/dmxBootstrap4Alert.js" defer=""></script>
+    <script src="dmxAppConnect/dmxBootstrap4Tooltips/dmxBootstrap4Tooltips.js" defer=""></script>
 </head>
 
 <body is="dmx-app" id="index">
-    <dmx-notifications id="notifies" position="bottom"></dmx-notifications>
-    <dmx-serverconnect id="insert_consumption" url="api/Insert/insert_consumption" noload dmx-on:success="notifies.success('Consumption registered');get_entries.load({},true)" dmx-on:error="notifies.danger('Failed to register consumption')">
-    </dmx-serverconnect>
-    <dmx-serverconnect id="get_entries" url="api/Details/get_entries"></dmx-serverconnect>
-    <dmx-serverconnect id="get_drugs" url="api/Details/get_drugs"></dmx-serverconnect>
-    <dmx-serverconnect id="get_users" url="api/Details/get_users"></dmx-serverconnect>
+    <dmx-array id="detailsForTable"></dmx-array>
 
+    <dmx-array id="drugsForDateTable"></dmx-array>
+    <dmx-array id="datesForTable"></dmx-array>
+    <dmx-array id="usersForTable"></dmx-array>
+    <dmx-notifications id="notifies" position="bottom"></dmx-notifications>
+    <dmx-serverconnect id="insert_consumption" url="api/Insert/insert_consumption" noload dmx-on:success="notifies.success('Consumption registered');get_users.load({},true);get_dates.load({},true);get_entries.load({},true)"
+        dmx-on:error="notifies.danger('Check your input')">
+    </dmx-serverconnect>
+
+    <dmx-serverconnect id="get_drugs" url="api/Details/get_drugs" dmx-on:success="drugsForDateTable.add(get_drugs.data.query)"></dmx-serverconnect>
+    <dmx-serverconnect id="get_users" url="api/Details/get_users" dmx-on:success="usersForTable.add(get_users.data.query)"></dmx-serverconnect>
+
+    <dmx-serverconnect id="get_entries" url="api/Details/get_entries" dmx-on:success="run([{run:{action:`detailsForTable.add(get_entries.data.combined)`}},{runJS:{function:'createTable'}}])"></dmx-serverconnect>
+    <dmx-serverconnect id="get_dates" url="api/Details/get_dates"></dmx-serverconnect>
     <section class="container-fluid" id="header">
         <header class="navbar-light pt-1 pb-1">
             <h3 class="mt-0 mb-0 pt-0 pb-0 text-monospace text-left font-weight-bold">V.A.G.I.N.A - Drug App</h3>
@@ -89,30 +98,125 @@
 
 
 
+
+
         <h4 class="style1">Consumption log</h4>
-        <table class="table mt-5">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Name</th>
-                    <th>Drugs</th>
-                </tr>
-            </thead>
-            <tbody is="dmx-repeat" dmx-generator="bs4table" dmx-bind:repeat="get_entries.data.combined" id="tableRepeat1">
-                <tr>
-                    <td dmx-text="date.formatDate('yyyy-MM-dd')"></td>
-                    <td dmx-text="first_name+' '+last_name"></td>
-                    <td dmx-text="drugs"></td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="row" id="first">
+            <div class="col border-right">
+                <h6 class="text-center">Date</h6>
+            </div>
+            <div class="col border-right text-center" dmx-repeat:some="get_users.data.query">
+                <h6 dmx-text="first_name" class="flex-shrink-1"></h6>
+            </div>
+        </div>
     </section>
     <script src="bootstrap/4/js/popper.min.js"></script>
     <script src="bootstrap/4/js/bootstrap.min.js"></script>
     <script>
         function logThis(){
+            // <h5 dmx-text="get_entries.data.combined[0].drugs" dmx-bs-tooltip="drugs">Fancy display heading</h5>
             var x = dmx.parse('selection.items');
             console.log('items: ', x);
+        }
+        var index = 0;
+        var GLOBAL_DETAILS = [];//do not modify unless you understand the code;
+        var GLOBAL_USERS = [];//same for this;
+        var PROCESSED_DATES = [];
+        function createTable(){
+
+            GLOBAL_DETAILS = dmx.parse('detailsForTable.items');
+            GLOBAL_USERS = dmx.parse('usersForTable.items');
+
+            var uniqueIndex = 0;
+
+            console.log(GLOBAL_DETAILS);
+
+            while(index < GLOBAL_DETAILS[0].length){
+                var date = GLOBAL_DETAILS[0][index].date; //.slice(0, 10);
+                console.log('processing date:', date.slice(0, 10));
+
+                if(PROCESSED_DATES.indexOf(date) == -1){
+                    rowForDate(date, uniqueIndex);
+                    PROCESSED_DATES.push(date);
+                    uniqueIndex++;
+                }
+
+                index++;
+            }
+            index = 0;
+            uniqueIndex = 0;
+            dmx.parse('detailsForTable.empty()');
+            dmx.parse('usersForTable.empty()');
+        }
+
+        function rowForDate(date, index){
+            var userID = 0;
+
+            var row = document.createElement('div');
+            var dateElement = document.createElement('div');
+            var dateValue = document.createElement('h6');
+
+            row.id = 'tableRow'+index;
+            row.className = 'row';
+            dateElement.className = 'col border-right text-center';
+            dateValue.innerHTML = date.slice(0, 10);
+
+            dateElement.appendChild(dateValue);
+            row.appendChild(dateElement);
+
+            for(var i = 0; i < GLOBAL_USERS[0].length; i++){
+                var col = document.createElement('div');
+                col.className = 'col border-right text-center';
+                col.id = 'tableColumn'+index+''+i;
+                userID = GLOBAL_USERS[0][i].id;
+                var drugs = findDetailsForUser(userID, date);
+                var text = document.createElement('h6');
+                text.className = 'text-center';
+
+                if(drugs != null){
+                    var dr = drugs.split(',');
+                    text.innerHTML = dr.length;
+                    text.setAttribute('dmx-bs-tooltip', drugs);
+                } else {
+                    text.innerHTML = 0;
+                }
+
+                col.appendChild(text);
+                row.appendChild(col);
+                console.log(drugs, 'for', userID);
+                
+            }
+            if(index == 0){
+                var toAppendAfter = document.getElementById('first');
+                insertAfter(row, toAppendAfter);
+                console.log('inserted new row...');
+            } else {
+                var previous = index - 1;
+                var toAppendAfter = document.getElementById('tableRow'+previous);
+                insertAfter(row, toAppendAfter);
+                console.log('inserted new row...');
+            }
+            
+        }
+
+        function insertAfter(newNode, existingNode) {
+            existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+        }
+
+        function findDetailsForUser(userID, date){
+            console.log('finding details for user', userID, 'on', date);
+            for(var j = 0; j < GLOBAL_DETAILS[0].length; j++){
+                if(userID == GLOBAL_DETAILS[0][j].id && date == GLOBAL_DETAILS[0][j].date){
+                    console.log('found...');
+                    return GLOBAL_DETAILS[0][j].drugs;
+                }
+            }
+            console.log('didnt find...');
+            return null;
+        }
+
+        function reverseDate(date){
+
         }
     </script>
 </body>

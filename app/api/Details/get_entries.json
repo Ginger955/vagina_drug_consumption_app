@@ -42,6 +42,10 @@
               {
                 "table": "users",
                 "column": "avatar"
+              },
+              {
+                "table": "users",
+                "column": "id"
               }
             ],
             "table": {
@@ -77,7 +81,7 @@
                 "recid": 1
               }
             ],
-            "query": "SELECT entries.date, entries.drugs, users.first_name, users.last_name, users.avatar\nFROM entries\nINNER JOIN users ON (users.id = entries.consumed_by)\nORDER BY entries.date ASC",
+            "query": "SELECT entries.date, entries.drugs, users.first_name, users.last_name, users.avatar, users.id\nFROM entries\nINNER JOIN users ON (users.id = entries.consumed_by)\nORDER BY entries.date ASC",
             "params": [],
             "wheres": null
           }
@@ -102,6 +106,10 @@
           },
           {
             "name": "avatar",
+            "type": "text"
+          },
+          {
+            "name": "id",
             "type": "text"
           }
         ],
