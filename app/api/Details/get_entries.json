@@ -15,26 +15,81 @@
     "steps": [
       "connections/db",
       {
-        "name": "users",
+        "name": "combined",
         "module": "dbconnector",
         "action": "select",
         "options": {
           "connection": "db",
           "sql": {
             "type": "SELECT",
-            "columns": [],
+            "columns": [
+              {
+                "table": "entries",
+                "column": "date"
+              },
+              {
+                "table": "entries",
+                "column": "drugs"
+              },
+              {
+                "table": "users",
+                "column": "first_name"
+              },
+              {
+                "table": "users",
+                "column": "last_name"
+              },
+              {
+                "table": "users",
+                "column": "avatar"
+              }
+            ],
             "table": {
-              "name": "users"
+              "name": "entries"
             },
-            "joins": [],
-            "query": "SELECT *\nFROM users",
-            "params": []
+            "joins": [
+              {
+                "table": "users",
+                "column": "*",
+                "type": "INNER",
+                "clauses": {
+                  "condition": "AND",
+                  "rules": [
+                    {
+                      "table": "users",
+                      "column": "id",
+                      "operator": "equal",
+                      "value": {
+                        "table": "entries",
+                        "column": "consumed_by"
+                      },
+                      "operation": "="
+                    }
+                  ]
+                }
+              }
+            ],
+            "orders": [
+              {
+                "table": "entries",
+                "column": "date",
+                "direction": "ASC",
+                "recid": 1
+              }
+            ],
+            "query": "SELECT entries.date, entries.drugs, users.first_name, users.last_name, users.avatar\nFROM entries\nINNER JOIN users ON (users.id = entries.consumed_by)\nORDER BY entries.date ASC",
+            "params": [],
+            "wheres": null
           }
         },
         "output": true,
         "meta": [
           {
-            "name": "id",
+            "name": "date",
+            "type": "text"
+          },
+          {
+            "name": "drugs",
             "type": "text"
           },
           {
@@ -46,141 +101,7 @@
             "type": "text"
           },
           {
-            "name": "gender",
-            "type": "text"
-          },
-          {
-            "name": "email",
-            "type": "text"
-          },
-          {
-            "name": "company",
-            "type": "text"
-          },
-          {
             "name": "avatar",
-            "type": "text"
-          },
-          {
-            "name": "password",
-            "type": "text"
-          }
-        ],
-        "outputType": "array"
-      },
-      {
-        "name": "drugs",
-        "module": "dbconnector",
-        "action": "select",
-        "options": {
-          "connection": "db",
-          "sql": {
-            "type": "SELECT",
-            "columns": [],
-            "table": {
-              "name": "drug_types"
-            },
-            "joins": [],
-            "query": "SELECT *\nFROM drug_types",
-            "params": []
-          }
-        },
-        "output": true,
-        "meta": [
-          {
-            "name": "id",
-            "type": "text"
-          },
-          {
-            "name": "name",
-            "type": "text"
-          }
-        ],
-        "outputType": "array"
-      },
-      {
-        "name": "combined",
-        "module": "dbconnector",
-        "action": "select",
-        "options": {
-          "connection": "db",
-          "sql": {
-            "type": "SELECT",
-            "columns": [],
-            "table": {
-              "name": "entries"
-            },
-            "joins": [],
-            "orders": [
-              {
-                "table": "entries",
-                "column": "consumed_by",
-                "direction": "ASC",
-                "recid": 1
-              }
-            ],
-            "query": "SELECT *\nFROM entries\nWHERE consumed_by = :P1 /* {{users[0].id}} */ AND drug_type = :P2 /* {{drugs[0].id}} */\nORDER BY consumed_by ASC",
-            "params": [
-              {
-                "operator": "equal",
-                "type": "expression",
-                "name": ":P1",
-                "value": "{{users[0].id}}"
-              },
-              {
-                "operator": "equal",
-                "type": "expression",
-                "name": ":P2",
-                "value": "{{drugs[0].id}}"
-              }
-            ],
-            "wheres": {
-              "condition": "AND",
-              "rules": [
-                {
-                  "id": "entries.consumed_by",
-                  "field": "entries.consumed_by",
-                  "type": "string",
-                  "operator": "equal",
-                  "value": "{{users[0].id}}",
-                  "data": {
-                    "table": "entries",
-                    "column": "consumed_by",
-                    "type": "text"
-                  },
-                  "operation": "="
-                },
-                {
-                  "id": "entries.drug_type",
-                  "field": "entries.drug_type",
-                  "type": "string",
-                  "operator": "equal",
-                  "value": "{{drugs[0].id}}",
-                  "data": {
-                    "table": "entries",
-                    "column": "drug_type",
-                    "type": "text"
-                  },
-                  "operation": "="
-                }
-              ],
-              "conditional": null,
-              "valid": true
-            }
-          }
-        },
-        "output": true,
-        "meta": [
-          {
-            "name": "id",
-            "type": "text"
-          },
-          {
-            "name": "consumed_by",
-            "type": "text"
-          },
-          {
-            "name": "drug_type",
             "type": "text"
           }
         ],

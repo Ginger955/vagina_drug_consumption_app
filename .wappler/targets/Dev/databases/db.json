@@ -26,6 +26,23 @@
               "nullable": false
             }
           },
+          "date": {
+            "db": {
+              "type": "date",
+              "primary": false,
+              "comment": "",
+              "nullable": true
+            }
+          },
+          "drugs": {
+            "db": {
+              "type": "text",
+              "maxLength": 65535,
+              "primary": false,
+              "comment": "",
+              "nullable": true
+            }
+          },
           "consumed_by": {
             "db": {
               "type": "reference",
@@ -34,18 +51,6 @@
               "nullable": true,
               "references": "id",
               "inTable": "users",
-              "onUpdate": "NO ACTION",
-              "onDelete": "NO ACTION"
-            }
-          },
-          "drug_type": {
-            "db": {
-              "type": "reference",
-              "primary": false,
-              "comment": "",
-              "nullable": true,
-              "references": "id",
-              "inTable": "drug_types",
               "onUpdate": "NO ACTION",
               "onDelete": "NO ACTION"
             }

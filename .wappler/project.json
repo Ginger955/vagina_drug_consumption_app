@@ -20,7 +20,8 @@
       "webServer": "node",
       "NodeVersion": "12",
       "remoteURL": "http://localhost:8100",
-      "name": "Dev"
+      "name": "Dev",
+      "dockerBuild": true
     }
   ],
   "frameworks": [],

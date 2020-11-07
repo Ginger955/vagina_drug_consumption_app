@@ -10,7 +10,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <script src="js/jquery-3.4.1.slim.min.js"></script>
     <link rel="stylesheet" href="fontawesome4/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="bootstrap/4/darkly/bootstrap.min.css" />
     <link rel="stylesheet" href="css/styles.css" />
     <link rel="stylesheet" href="dmxAppConnect/dmxValidator/dmxValidator.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js" integrity="sha256-CutOzxCRucUsn6C6TcEYsauvvYilEniTXldPa6/wu0k=" crossorigin="anonymous"></script>
@@ -20,54 +19,102 @@
     <link rel="stylesheet" href="dmxAppConnect/dmxDatePicker/dmxDatePicker.css" />
     <script src="dmxAppConnect/dmxDatePicker/dmxDatePicker.js" defer=""></script>
 
+    <script src="dmxAppConnect/dmxFormatter/dmxFormatter.js" defer=""></script>
+    <link rel="stylesheet" href="dmxAppConnect/dmxBootstrap4TableGenerator/dmxBootstrap4TableGenerator.css" />
+    <link rel="stylesheet" href="../dmxAppConnect/dmxDatePicker/bgthemes/dark-calendar.css" />
+    <link rel="stylesheet" href="bootstrap/4/minty/bootstrap.min.css" />
+    <link rel="stylesheet" href="dmxAppConnect/dmxNotifications/dmxNotifications.css" />
+    <script src="dmxAppConnect/dmxNotifications/dmxNotifications.js" defer=""></script>
+    <script src="dmxAppConnect/dmxBootstrap4Alert/dmxBootstrap4Alert.js" defer=""></script>
 </head>
 
 <body is="dmx-app" id="index">
+    <dmx-notifications id="notifies" position="bottom"></dmx-notifications>
+    <dmx-serverconnect id="insert_consumption" url="api/Insert/insert_consumption" noload dmx-on:success="notifies.success('Consumption registered');get_entries.load({},true)" dmx-on:error="notifies.danger('Failed to register consumption')">
+    </dmx-serverconnect>
     <dmx-serverconnect id="get_entries" url="api/Details/get_entries"></dmx-serverconnect>
     <dmx-serverconnect id="get_drugs" url="api/Details/get_drugs"></dmx-serverconnect>
     <dmx-serverconnect id="get_users" url="api/Details/get_users"></dmx-serverconnect>
 
     <section class="container-fluid" id="header">
         <header class="navbar-light pt-1 pb-1">
-            <h3 class="mt-0 mb-0 pt-0 pb-0 text-monospace">V.A.G.I.N.A - Drug App</h3>
+            <h3 class="mt-0 mb-0 pt-0 pb-0 text-monospace text-left font-weight-bold">V.A.G.I.N.A - Drug App</h3>
         </header>
     </section>
-    <section id="input" class="mt-2 container-fluid">
+    <section id="input" class="container-fluid mt-2 mb-0">
+
+
+        <dmx-array id="selection" dmx-on:updated="run({runJS:{function:'logThis'}})"></dmx-array>
+        <dmx-value id="UserSelection"></dmx-value>
         <h4 class="style1">Submit a drug consumption</h4>
-        <form id="form" method="post">
-            <dmx-value id="user_selection"></dmx-value>
-            <dmx-array id="drug_selection"></dmx-array>
-
-            <div class="form-row">
-
-                <div class="col">
-                    <select id="user" class="form-control" name="user" dmx-bind:options="get_users.data.query" optiontext="first_name+' '+last_name" optionvalue="id" required="">
-                        <option selected="" value="">Select user</option>
-                    </select>
-                </div>
-                <div class="col"><select id="drug" class="form-control" dmx-bind:options="get_drugs.data.query" optiontext="name" optionvalue="id" multiple="true" required="" dmx-on:changed="">
-                    </select></div>
-                <div class="col">
-                    <input id="date" name="date" is="dmx-date-picker" type="date" placeholder="Select date" opens="center" required="">
-                </div>
-            </div>
-
-            <div class="form-row">
-                <h5>Are these values correct?</h5>
-            </div>
-            <div class="form-row">
-                <button id="add" class="btn btn-outline-success">Submit</button></div>
-
-        </form>
-    </section>
-    <section id="view" class="mt-2 container-fluid">
-
-        <h4 class="style1">History</h4>
         <div class="row">
+            <div class="col-2 pr-0">
+                <select id="user" class="form-control" name="user" dmx-bind:options="get_users.data.query" optiontext="first_name+' '+last_name" optionvalue="id" data-msg-required="" dmx-on:updated="UserSelection.setValue(value)">
+                    <option selected="" value="">Select user</option>
+                </select>
+                <button id="add" class="btn btn-outline-success mt-3" dmx-on:click="insert_consumption.load({id: UserSelection.value, drugs: selection.items, date: date.value})">Submit</button></div>
+            <div class="col-NaN col-1 ml-3">
+                <div class="row row-cols-1" is="dmx-repeat" id="repeat1" dmx-bind:repeat="get_drugs.data.query" key="id">
+                    <div class="col ml-3 pl-0 pr-0">
+                        <script is="dmx-flow" id="flow" type="text/dmx-flow">{
+  condition: {
+    if: "{{checked.value == 0}}",
+    then: {
+      steps: {
+        run: {action: "{{selection.add(name);checked.setValue(1)}}"}
+      }
+    },
+    else: {
+      steps: {
+        run: {action: "{{selection.remove(name);checked.setValue(0)}}"}
+      }
+    }
+  }
+}</script>
+                        <dmx-value id="checked" dmx-bind:value="0"></dmx-value>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="input1" name="input1" dmx-on:click="run({run:{action:`flow.run({})`}})" dmx-bind:value="name">
+                            <label class="form-check-label" for="input1" dmx-text="name">Default checkbox</label>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-NaN ml-5 pl-0">
+                <input id="date" name="date" is="dmx-date-picker" placeholder="Select date" opens="center" data-msg-required="">
+            </div>
         </div>
+    </section>
+    <section id="view" class="container-fluid mt-3">
+
+
+
+        <h4 class="style1">Consumption log</h4>
+        <table class="table mt-5">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Drugs</th>
+                </tr>
+            </thead>
+            <tbody is="dmx-repeat" dmx-generator="bs4table" dmx-bind:repeat="get_entries.data.combined" id="tableRepeat1">
+                <tr>
+                    <td dmx-text="date.formatDate('yyyy-MM-dd')"></td>
+                    <td dmx-text="first_name+' '+last_name"></td>
+                    <td dmx-text="drugs"></td>
+                </tr>
+            </tbody>
+        </table>
     </section>
     <script src="bootstrap/4/js/popper.min.js"></script>
     <script src="bootstrap/4/js/bootstrap.min.js"></script>
+    <script>
+        function logThis(){
+            var x = dmx.parse('selection.items');
+            console.log('items: ', x);
+        }
+    </script>
 </body>
 
 </html>

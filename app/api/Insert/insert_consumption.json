@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "$_GET": [
+      {
+        "type": "number",
+        "name": "id"
+      },
+      {
+        "type": "array",
+        "name": "drugs"
+      },
+      {
+        "type": "date",
+        "name": "date"
+      }
+    ]
+  },
+  "exec": {
+    "steps": [
+      "connections/db",
+      {
+        "name": "insert",
+        "module": "dbupdater",
+        "action": "insert",
+        "options": {
+          "connection": "db",
+          "sql": {
+            "type": "insert",
+            "values": [
+              {
+                "table": "entries",
+                "column": "date",
+                "type": "date",
+                "value": "{{$_GET.date}}"
+              },
+              {
+                "table": "entries",
+                "column": "drugs",
+                "type": "text",
+                "value": "{{$_GET.drugs}}"
+              },
+              {
+                "table": "entries",
+                "column": "consumed_by",
+                "type": "text",
+                "value": "{{$_GET.id}}"
+              }
+            ],
+            "table": "entries",
+            "returning": "id",
+            "query": "INSERT INTO entries\n(date, drugs, consumed_by) VALUES (:P1 /* {{$_GET.date}} */, :P2 /* {{$_GET.drugs}} */, :P3 /* {{$_GET.id}} */)",
+            "params": [
+              {
+                "name": ":P1",
+                "type": "expression",
+                "value": "{{$_GET.date}}"
+              },
+              {
+                "name": ":P2",
+                "type": "expression",
+                "value": "{{$_GET.drugs}}"
+              },
+              {
+                "name": ":P3",
+                "type": "expression",
+                "value": "{{$_GET.id}}"
+              }
+            ]
+          }
+        },
+        "meta": [
+          {
+            "name": "identity",
+            "type": "text"
+          },
+          {
+            "name": "affected",
+            "type": "number"
+          }
+        ]
+      }
+    ]
+  }
+}
