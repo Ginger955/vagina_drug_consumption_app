@@ -46,7 +46,7 @@
     <dmx-serverconnect id="get_entries" url="api/Details/get_entries" dmx-on:success="run([{run:{action:`detailsForTable.add(get_entries.data.combined)`}},{runJS:{function:'createTable'}}])"></dmx-serverconnect>
     <dmx-serverconnect id="get_dates" url="api/Details/get_dates"></dmx-serverconnect>
     <section class="container-fluid" id="header">
-        <header class="navbar-light pt-1 pb-1">
+        <header class="navbar-light pt-1 pb-1 sticky-top">
             <h3 class="mt-0 mb-0 pt-0 pb-0 text-monospace text-left font-weight-bold">V.A.G.I.N.A - Drug App</h3>
         </header>
     </section>
@@ -102,10 +102,10 @@
 
         <h4 class="style1">Consumption log</h4>
         <div class="row" id="first">
-            <div class="col border-right">
+            <div class="col border-right border-bottom">
                 <h6 class="text-center">Date</h6>
             </div>
-            <div class="col border-right text-center" dmx-repeat:some="get_users.data.query">
+            <div class="col text-center border-right border-bottom" dmx-repeat:some="get_users.data.query">
                 <h6 dmx-text="first_name" class="flex-shrink-1"></h6>
             </div>
         </div>
@@ -113,6 +113,37 @@
     <script src="bootstrap/4/js/popper.min.js"></script>
     <script src="bootstrap/4/js/bootstrap.min.js"></script>
     <script>
+        function resetVariables(){
+            dmx.parse('detailsForTable.empty()');
+            dmx.parse('usersForTable.empty()');
+            PROCESSED_DATES = [];
+            GLOBAL_DETAILS = [];
+            GLOBAL_USERS = [];
+        }
+
+        function clearTable(){
+
+        }
+        function shadeColor(color, percent) {
+
+            var R = parseInt(color.substring(1,3),16);
+            var G = parseInt(color.substring(3,5),16);
+            var B = parseInt(color.substring(5,7),16);
+
+            R = parseInt(R * (100 + percent) / 100);
+            G = parseInt(G * (100 + percent) / 100);
+            B = parseInt(B * (100 + percent) / 100);
+
+            R = (R<255)?R:255;  
+            G = (G<255)?G:255;  
+            B = (B<255)?B:255;  
+
+            var RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+            var GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+            var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+
+            return "#"+RR+GG+BB;
+        }
         function logThis(){
             // <h5 dmx-text="get_entries.data.combined[0].drugs" dmx-bs-tooltip="drugs">Fancy display heading</h5>
             var x = dmx.parse('selection.items');
@@ -122,6 +153,7 @@
         var GLOBAL_DETAILS = [];//do not modify unless you understand the code;
         var GLOBAL_USERS = [];//same for this;
         var PROCESSED_DATES = [];
+
         function createTable(){
 
             GLOBAL_DETAILS = dmx.parse('detailsForTable.items');
@@ -129,11 +161,11 @@
 
             var uniqueIndex = 0;
 
-            console.log(GLOBAL_DETAILS);
+            // console.log(GLOBAL_DETAILS);
 
             while(index < GLOBAL_DETAILS[0].length){
                 var date = GLOBAL_DETAILS[0][index].date; //.slice(0, 10);
-                console.log('processing date:', date.slice(0, 10));
+                // console.log('processing date:', date.slice(0, 10));
 
                 if(PROCESSED_DATES.indexOf(date) == -1){
                     rowForDate(date, uniqueIndex);
@@ -145,8 +177,7 @@
             }
             index = 0;
             uniqueIndex = 0;
-            dmx.parse('detailsForTable.empty()');
-            dmx.parse('usersForTable.empty()');
+            resetVariables();
         }
 
         function rowForDate(date, index){
@@ -159,7 +190,7 @@
             row.id = 'tableRow'+index;
             row.className = 'row';
             dateElement.className = 'col border-right text-center';
-            dateValue.innerHTML = date.slice(0, 10);
+            dateValue.innerHTML = reverseDate(date.slice(0, 10));
 
             dateElement.appendChild(dateValue);
             row.appendChild(dateElement);
@@ -176,25 +207,31 @@
                 if(drugs != null){
                     var dr = drugs.split(',');
                     text.innerHTML = dr.length;
-                    text.setAttribute('dmx-bs-tooltip', drugs);
+                    // col.className = 'col border-right text-center tooltip';
+                    col.style.backgroundColor = shadeColor('#e6ffe6', -dr.length*5);
+                    // var span = document.createElement('span');
+                    // span.className = 'tooltiptext';
+                    // span.innerHTML = drugs;
+                    // col.appendChild(span);
+                    // text.setAttribute('dmx-bs-tooltip', drugs);
                 } else {
                     text.innerHTML = 0;
                 }
-
+                
                 col.appendChild(text);
                 row.appendChild(col);
-                console.log(drugs, 'for', userID);
+                // console.log(drugs, 'for', userID);
                 
             }
             if(index == 0){
                 var toAppendAfter = document.getElementById('first');
                 insertAfter(row, toAppendAfter);
-                console.log('inserted new row...');
+                // console.log('inserted new row...');
             } else {
                 var previous = index - 1;
                 var toAppendAfter = document.getElementById('tableRow'+previous);
                 insertAfter(row, toAppendAfter);
-                console.log('inserted new row...');
+                // console.log('inserted new row...');
             }
             
         }
@@ -204,20 +241,24 @@
         }
 
         function findDetailsForUser(userID, date){
-            console.log('finding details for user', userID, 'on', date);
+            // console.log('finding details for user', userID, 'on', date);
             for(var j = 0; j < GLOBAL_DETAILS[0].length; j++){
                 if(userID == GLOBAL_DETAILS[0][j].id && date == GLOBAL_DETAILS[0][j].date){
-                    console.log('found...');
+                    // console.log('found...');
                     return GLOBAL_DETAILS[0][j].drugs;
                 }
             }
-            console.log('didnt find...');
+            // console.log('didnt find...');
             return null;
         }
 
         function reverseDate(date){
-
+            var year = date.slice(0, 4);
+            var month = date.slice(5, 7);
+            var day = date.slice(8, 10);
+            return day+'-'+month+'-'+year;
         }
+
     </script>
 </body>
 
